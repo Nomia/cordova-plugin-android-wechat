@@ -43,6 +43,7 @@
           </activity>
         </config-file>
 
+	<source-file src="src/android/WXEntryActivity.java" target-dir="src/com/okmemo/app/wxapi" />
         <source-file src="src/android/Wechat.java" target-dir="src/xu/li/cordova/wechat" />
         <source-file src="src/android/Util.java" target-dir="src/xu/li/cordova/wechat" />
         <source-file src="src/android/libammsdk.jar" target-dir="libs" />
