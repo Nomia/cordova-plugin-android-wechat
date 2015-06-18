@@ -66,6 +66,8 @@ public class Wechat extends CordovaPlugin {
     public static final int SCENE_SESSION = 0;
     public static final int SCENE_TIMELINE = 1;
     public static final int SCENE_FAVORITE = 2;
+
+    private static final int THUMB_SIZE = 150;
     
 	public static IWXAPI wxAPI;
 	public static CallbackContext currentCallbackContext;
@@ -236,6 +238,7 @@ public class Wechat extends CordovaPlugin {
 					
 			String thumbnailUrl = null;
 			Bitmap thumbnail = null;
+			Bitmap thumbBmp = null;
 
 			try {
 				if(message.getString(KEY_ARG_MESSAGE_THUMB).contains("temp:")){
@@ -249,6 +252,8 @@ public class Wechat extends CordovaPlugin {
 				}
 				thumbnail = BitmapFactory.decodeFile(thumbnailUrl);
 
+				thumbBmp = Bitmap.createScaledBitmap(thumbnail, THUMB_SIZE, THUMB_SIZE, true);
+				thumbnail.recycle();
 			} catch (Exception e) {
 				Log.e("Wechat", "Thumb URL parsing error", e);
 			}
@@ -257,7 +262,7 @@ public class Wechat extends CordovaPlugin {
 			wxMediaMessage.title = message.getString(KEY_ARG_MESSAGE_TITLE);
 			wxMediaMessage.description = message
 					.getString(KEY_ARG_MESSAGE_DESCRIPTION);
-			if (thumbnail != null) {
+			if (thumbBmp != null) {
 				Log.i("out","build-thumbn");
 				wxMediaMessage.thumbData=Util.bmpToByteArray(thumbnail, true);
 			}
