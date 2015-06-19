@@ -24,6 +24,11 @@ import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
 
+import android.widget.Toast;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class Wechat extends CordovaPlugin {
 
 	public static final String WXAPPID_PROPERTY_KEY = "wechatappid";
@@ -143,7 +148,7 @@ public class Wechat extends CordovaPlugin {
 		final IWXAPI api = getWXAPI();
 
 		api.registerApp(preferences.getString(WXAPPID_PROPERTY_KEY, ""));
-
+		
 		// check if installed
 		if (!api.isWXAppInstalled()) {
 			callbackContext.error(ERROR_WX_NOT_INSTALLED);
@@ -176,7 +181,7 @@ public class Wechat extends CordovaPlugin {
 		} else {
 			req.scene = SendMessageToWX.Req.WXSceneTimeline;
 		}
-
+		
 		// run in background
 		cordova.getThreadPool().execute(new Runnable() {
 
@@ -184,10 +189,12 @@ public class Wechat extends CordovaPlugin {
 			public void run() {
 				try {
 					req.message = buildSharingMessage(params);
-				} catch (JSONException e) {
+				}  catch (JSONException e) {
 					Log.i("out","run()error"+e);
 					Log.e("Wechat", "Sharing error", e);
+					e.printStackTrace();
 				}
+
 				api.sendReq(req);
 				Log.i("out","run()end");
 			}
@@ -246,27 +253,46 @@ public class Wechat extends CordovaPlugin {
 					String[] athumbPath = thumbPath.split("temp:");
 					Log.i("out",Environment.getExternalStorageDirectory().getAbsolutePath()+"/img/"+athumbPath[1]);
 					thumbnailUrl=Environment.getExternalStorageDirectory().getAbsolutePath()+"/img/"+athumbPath[1];
+				} else if(message.getString(KEY_ARG_MESSAGE_THUMB).startsWith("data")){
+					String dataUrl = message.getString(KEY_ARG_MESSAGE_THUMB);
+	                String encodingPrefix = "base64,";
+	                int contentStartIndex = dataUrl.indexOf(encodingPrefix)
+	                        + encodingPrefix.length();
+	                String resData = dataUrl.substring(contentStartIndex);
 
+	                byte[] bytes = null;
+	                try {
+	                    bytes = Base64.decode(resData, 0);
+	                } catch (Exception ignored) {
+	                    Log.e("Weibo", "Invalid Base64 string");
+	                }
+
+	                thumbnail = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+	                thumbBmp = Bitmap.createScaledBitmap(thumbnail, THUMB_SIZE, THUMB_SIZE, true);
+	                thumbnail.recycle();
 				}else{
 					thumbnailUrl = message.getString(KEY_ARG_MESSAGE_THUMB);
 				}
-				thumbnail = BitmapFactory.decodeFile(thumbnailUrl);
 
-				thumbBmp = Bitmap.createScaledBitmap(thumbnail, THUMB_SIZE, THUMB_SIZE, true);
-				thumbnail.recycle();
+				if(thumbnailUrl != null){
+					thumbnail = BitmapFactory.decodeStream(new URL(thumbnailUrl).openStream());
+
+					thumbBmp = Bitmap.createScaledBitmap(thumbnail, THUMB_SIZE, THUMB_SIZE, true);
+					thumbnail.recycle();
+				}
+				
 			} catch (Exception e) {
 				Log.e("Wechat", "Thumb URL parsing error", e);
 			}
 
-			
-			wxMediaMessage.title = message.getString(KEY_ARG_MESSAGE_TITLE);
-			wxMediaMessage.description = message
-					.getString(KEY_ARG_MESSAGE_DESCRIPTION);
 			if (thumbBmp != null) {
 				Log.i("out","build-thumbn");
-				wxMediaMessage.thumbData=Util.bmpToByteArray(thumbnail, true);
+				wxMediaMessage.thumbData=Util.bmpToByteArray(thumbBmp, true);
 			}
 
+			wxMediaMessage.title = message.getString(KEY_ARG_MESSAGE_TITLE);
+			wxMediaMessage.description = message.getString(KEY_ARG_MESSAGE_DESCRIPTION);
 
 			switch (type) {
 			case TYPE_WX_SHARING_APP:
@@ -280,8 +306,8 @@ public class Wechat extends CordovaPlugin {
 
 			case TYPE_WX_SHARING_IMAGE:
 				Log.i("out","build-img");
-				mediaObject = new WXImageObject();
-				String imgURL;
+				// mediaObject = new WXImageObject();
+				String imgURL = null;
 				if(media.getString(KEY_ARG_MESSAGE_MEDIA_IMAGE).contains("temp:")){
 					String urlPath =media.getString(KEY_ARG_MESSAGE_MEDIA_IMAGE);
 					String[] aurlPath = urlPath.split("temp:");
@@ -290,7 +316,23 @@ public class Wechat extends CordovaPlugin {
 				}else{
 					imgURL = media.getString(KEY_ARG_MESSAGE_MEDIA_IMAGE);
 				}
-				((WXImageObject) mediaObject).setImagePath(imgURL);
+				// ((WXImageObject) mediaObject).setImagePath(imgURL);
+
+				if(imgURL != null){
+					// mediaObject.imageUrl = imgURL;
+					try{
+						Bitmap bmp = BitmapFactory.decodeStream(new URL(imgURL).openStream());
+						// Bitmap imageBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
+						mediaObject = new WXImageObject(bmp);
+						// bmp.recycle();
+						// wxMediaMessage.thumbData = Util.bmpToByteArray(imageBmp, true);
+					}catch(Exception e){
+
+					}
+
+					
+				}
+
 
 			case TYPE_WX_SHARING_MUSIC:
 				break;
