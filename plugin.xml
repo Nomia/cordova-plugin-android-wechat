@@ -44,7 +44,7 @@
 
         <!-- !!!!!! IMPORTANT  -->
 	   <source-file src="src/android/WXEntryActivity.java" target-dir="src/your/package/name/wxapi" />
-       <!-- if your app's package name is com.whatever.hola, then change "/com/example/app" above to "/com/whatever/hola" -->
+       <!-- if your app's package name is com.whatever.hola, then change "/your/package/name" above to "/com/whatever/hola" -->
        <!-- !!!!!! IMPORTANT  -->
         <source-file src="src/android/Wechat.java" target-dir="src/xu/li/cordova/wechat" />
         <source-file src="src/android/Util.java" target-dir="src/xu/li/cordova/wechat" />
