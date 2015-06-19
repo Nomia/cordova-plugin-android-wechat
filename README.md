@@ -1,4 +1,27 @@
-# cordova-plugin-wechat
+# cordova-plugin-android-wechat
+
+### DO NOT INSTALL THIS PLUGIN, CLONE A COPY AND MAKE FOLLOWING CHANGES
+
+### in the plugin.xml
+```
+<source-file src="src/android/WXEntryActivity.java" target-dir="src/your/package/name/wxapi" />
+<!-- if your app's package name is com.whatever.hola, then change "/com/example/app" above to "/com/whatever/hola" -->
+```
+
+
+### in the WXEntryActivity.java file, modified the first line of code as suggested
+```
+/*
+    !!!!!!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!!!!!
+*/
+    package your.package.name.wxapi;
+/*
+    If your app's package name is "com.example.app",
+    then change the "your.package.name" above to "com.example.app"
+    !!!!!!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!!!!!
+*/
+```
+
 
 A cordova plugin, a JS version of Wechat SDK
 
