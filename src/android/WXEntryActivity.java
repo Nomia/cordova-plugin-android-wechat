@@ -1,4 +1,13 @@
-package to.be.replaced.wxapi;
+/*
+    !!!!!!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!!!!!
+*/
+    package your.package.name.wxapi;
+/*
+    If your app's package name is "com.example.app",
+    then change the "your.package.name" above to "com.example.app"
+    !!!!!!!!!!!!!!!!!IMPORTANT!!!!!!!!!!!!!!!!!!!!
+*/
+
 
 import java.io.BufferedReader;
 import java.net.URL;
